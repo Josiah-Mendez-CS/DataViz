@@ -6,8 +6,28 @@
     <title>Femur µCT Outcomes Chart</title>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
+        /* Light Mode (Default) */
+        :root {
+            --background-color: #ffffff;
+            --text-color: #000000;
+            --sidebar-background-color: #f4f4f4;
+            --sidebar-border-color: #ccc;
+            --chart-container-background-color: #ffffff;
+        }
+
+        /* Dark Mode */
+        .dark-mode {
+            --background-color: #1e1e1e;
+            --text-color: #ffffff;
+            --sidebar-background-color: #2e2e2e;
+            --sidebar-border-color: #555555;
+            --chart-container-background-color: #1e1e1e;
+        }
+
         /* Layout Styles */
         body {
+            background-color: var(--background-color);
+            color: var(--text-color);
             display: flex;
             font-family: Arial, sans-serif;
         }
@@ -15,13 +35,13 @@
         /* Sidebar Styles */
         .sidebar {
             width: 200px;
-            background-color: #f4f4f4;
+            background-color: var(--sidebar-background-color);
             padding: 20px;
             position: fixed;
             left: 0;
             top: 0;
             height: 100%;
-            border-right: 2px solid #ccc;
+            border-right: 2px solid var(--sidebar-border-color);
         }
 
         .filter-section {
@@ -32,6 +52,7 @@
             font-weight: bold;
             display: block;
             margin-bottom: 5px;
+            color: var(--text-color);
         }
 
         select {
@@ -45,6 +66,7 @@
             margin-left: 220px;
             width: 80%;
             padding: 20px;
+            background-color: var(--chart-container-background-color);
         }
 
         canvas {
@@ -54,11 +76,9 @@
     </style>
 </head>
 <body>
-
     <!-- Sidebar Filter Menu -->
     <div class="sidebar">
         <h3>Filter Options</h3>
-
         <!-- Bone Type Filter -->
         <div class="filter-section">
             <label class="filter-label" for="boneType">Bone Type</label>
@@ -68,7 +88,6 @@
                 <option value="radius">Radius</option>
             </select>
         </div>
-
         <!-- Gender Filter -->
         <div class="filter-section">
             <label class="filter-label" for="gender">Gender</label>
@@ -78,7 +97,6 @@
                 <option value="female">Female</option>
             </select>
         </div>
-
         <!-- CT Measurements Filter -->
         <div class="filter-section">
             <label class="filter-label" for="ctMeasurement">CT Measurement</label>
@@ -88,7 +106,6 @@
                 <option value="TbN">TbN</option>
             </select>
         </div>
-
         <!-- Chart Type Filter -->
         <div class="filter-section">
             <label class="filter-label" for="chartType">Chart Type</label>
@@ -98,14 +115,17 @@
                 <option value="line">Line Chart</option>
             </select>
         </div>
+        <!-- Dark Mode Toggle -->
+        <div class="filter-section">
+            <label class="filter-label" for="darkModeToggle">Dark Mode</label>
+            <input type="checkbox" id="darkModeToggle">
+        </div>
     </div>
-
     <!-- Chart Container -->
     <div class="chart-container">
         <h2>Femur µCT Outcomes for Male & Female Global Homozygous KO Mice</h2>
         <canvas id="chart"></canvas>
     </div>
-
     <script>
         // Parse the data passed from the controller
         const geneSymbols = @json($data['geneSymbols']);
@@ -203,7 +223,38 @@
             createChart('scatter');
         };
 
-    </script>
+        // Dark Mode Toggle Logic
+        const darkModeToggle = document.getElementById('darkModeToggle');
 
+        // Function to apply the theme
+        function applyTheme(theme) {
+            if (theme === 'dark') {
+                document.body.classList.add('dark-mode');
+                darkModeToggle.checked = true;
+            } else {
+                document.body.classList.remove('dark-mode');
+                darkModeToggle.checked = false;
+            }
+        }
+
+        // Check for saved user preference, if not, check for system preference
+        const savedTheme = localStorage.getItem('theme');
+        if (savedTheme) {
+            applyTheme(savedTheme);
+        } else if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+            applyTheme('dark');
+        }
+
+        // Listen for toggle switch changes
+        darkModeToggle.addEventListener('change', function () {
+            if (this.checked) {
+                applyTheme('dark');
+                localStorage.setItem('theme', 'dark');
+            } else {
+                applyTheme('light');
+                localStorage.setItem('theme', 'light');
+            }
+        });
+    </script>
 </body>
 </html>
